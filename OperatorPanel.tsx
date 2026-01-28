@@ -1,0 +1,215 @@
+
+import React, { useState } from "react";
+import { User, Branch, Report, Lead, VisitStatus } from "../types";
+import { Phone, CheckCircle, ClipboardList, UserCheck, ArrowRightCircle, PhoneOff, User as UserIcon, Info, UserPlus, X } from "lucide-react";
+
+interface OperatorPanelProps {
+  user: User;
+  branch: Branch;
+  leads: Lead[];
+  onReportSubmit: (report: Report) => void;
+}
+
+const OperatorPanel: React.FC<OperatorPanelProps> = ({ user, branch, leads, onReportSubmit }) => {
+  const [visitStatus, setVisitStatus] = useState<VisitStatus>("will_come");
+  const [tasks, setTasks] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasCalled, setHasCalled] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [showExtra, setShowExtra] = useState(false);
+  const [showManualAdd, setShowManualAdd] = useState(false);
+
+  // Manual Lead State
+  const [manualLead, setManualLead] = useState({ name: '', surname: '', phone: '' });
+
+  const currentLead = leads[0];
+  const hasPhoneNumber = currentLead?.phone && currentLead.phone.trim() !== "" && currentLead.phone.toLowerCase() !== "mavjud emas";
+
+  const handleCallInitiate = () => {
+    setHasCalled(true);
+    setStartTime(Date.now());
+    if (hasPhoneNumber) {
+      const cleanPhone = currentLead.phone.replace(/[^0-9+]/g, '');
+      window.location.href = `tel:${cleanPhone}`;
+    }
+  };
+
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualLead.name || !manualLead.phone) return;
+    
+    // Manual kiritilgan mijoz uchun darhol hisobot yaratamiz
+    const l: Lead = { 
+      id: "manual-" + Math.random().toString(36).substr(2, 9), 
+      name: manualLead.name, 
+      surname: manualLead.surname, 
+      school: '', 
+      phone: manualLead.phone, 
+      status: 'called' 
+    };
+
+    const newReport: Report = {
+      id: Math.random().toString(36).substr(2, 9),
+      operatorId: user.id,
+      operatorName: user.name,
+      branchId: branch.id,
+      timestamp: new Date().toISOString(),
+      leadId: l.id,
+      clientName: `${l.name} ${l.surname}`,
+      clientPhone: l.phone,
+      visitStatus: visitStatus,
+      tasksCompleted: tasks,
+      callDuration: "Manual",
+      status: "pending"
+    };
+
+    onReportSubmit(newReport);
+    setManualLead({ name: '', surname: '', phone: '' });
+    setTasks("");
+    setShowManualAdd(false);
+    alert("Yangi mijoz natijasi saqlandi!");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hasCalled) { alert("Avval qo'ng'iroq qiling!"); return; }
+    if (!tasks.trim()) { alert("Izoh yozing."); return; }
+
+    setIsSubmitting(true);
+    let callDuration = "0:00";
+    if (startTime) {
+      const durationMs = Date.now() - startTime;
+      const totalSeconds = Math.floor(durationMs / 1000);
+      callDuration = `${Math.floor(totalSeconds / 60)}:${(totalSeconds % 60).toString().padStart(2, '0')}`;
+    }
+
+    const newReport: Report = {
+      id: Math.random().toString(36).substr(2, 9),
+      operatorId: user.id,
+      operatorName: user.name,
+      branchId: branch.id,
+      timestamp: new Date().toISOString(),
+      leadId: currentLead?.id,
+      clientName: `${currentLead?.name} ${currentLead?.surname}`,
+      clientPhone: currentLead?.phone || "Mavjud emas",
+      visitStatus: visitStatus,
+      tasksCompleted: tasks,
+      callDuration: callDuration,
+      status: "pending"
+    };
+
+    setTimeout(() => {
+      onReportSubmit(newReport);
+      setTasks("");
+      setHasCalled(false);
+      setVisitStatus("will_come");
+      setStartTime(null);
+      setIsSubmitting(false);
+      setShowExtra(false);
+    }, 600);
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Top Actions */}
+      <div className="flex justify-between items-center px-4">
+        <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sizning Bazangiz: {leads.length} ta</h2>
+        <button 
+          onClick={() => setShowManualAdd(true)} 
+          className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-100"
+        >
+          <UserPlus size={16} /> Yangi Mijoz
+        </button>
+      </div>
+
+      {!currentLead ? (
+        <div className="bg-white p-16 rounded-[3rem] text-center border-2 border-dashed border-slate-200">
+          <CheckCircle size={64} className="mx-auto text-green-500 mb-6" />
+          <h3 className="text-xl font-black text-slate-800 uppercase">Hozircha mijoz yo'q</h3>
+          <p className="text-slate-400 text-sm mt-2 font-medium">Yangi mijozlar biriktirilishini kuting yoki qo'lda qo'shing.</p>
+        </div>
+      ) : (
+        <div className="bg-white p-6 md:p-10 rounded-[3rem] shadow-xl border border-slate-100 space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-5 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 relative overflow-hidden">
+              <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                <UserIcon size={32} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black text-slate-800 leading-tight uppercase tracking-tight">
+                  {currentLead.name} {currentLead.surname}
+                </h2>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Sizga biriktirilgan mijoz</p>
+              </div>
+            </div>
+
+            <div className="p-8 rounded-[2.5rem] text-center border-2 border-slate-100 bg-white shadow-2xl shadow-slate-100/50">
+              <p className="text-[10px] font-black uppercase mb-2 text-slate-400 tracking-[0.2em]">Telefon:</p>
+              <p className="text-4xl font-black text-slate-900 tracking-wider">
+                {hasPhoneNumber ? currentLead.phone : "RAQAM YO'Q"}
+              </p>
+            </div>
+          </div>
+
+          <button 
+            onClick={handleCallInitiate} 
+            className={`w-full py-7 rounded-[2.5rem] flex items-center justify-center gap-4 font-black text-xl shadow-2xl transition-all active:scale-95 ${
+              hasCalled ? "bg-slate-50 text-slate-300 border shadow-none" : "bg-green-500 text-white"
+            }`}
+          >
+            {hasCalled ? "ALOQA O'RNATILDI" : <><Phone size={32} fill="currentColor" /> QO'NG'IROQ QILISH</>}
+          </button>
+
+          <form onSubmit={handleSubmit} className={`space-y-8 transition-all duration-700 ${!hasCalled ? "opacity-20 pointer-events-none grayscale" : "opacity-100"}`}>
+            <div className="grid grid-cols-2 gap-3">
+              {["will_come", "thinking", "wont_come", "no_answer"].map(s => (
+                <button key={s} type="button" onClick={() => setVisitStatus(s as VisitStatus)} className={`py-6 rounded-3xl border-2 font-black text-[10px] uppercase tracking-widest transition-all ${visitStatus === s ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'bg-white border-slate-100 text-slate-400'}`}>
+                  {s === 'will_come' ? 'Keladi' : s === 'thinking' ? 'O\'ylaydi' : s === 'wont_come' ? 'Kelmaydi' : 'Javob yo\'q'}
+                </button>
+              ))}
+            </div>
+            <textarea required value={tasks} onChange={e => setTasks(e.target.value)} placeholder="Suhbat natijasi..." className="w-full h-40 p-8 rounded-[2.5rem] bg-slate-50 border-2 border-transparent outline-none focus:border-indigo-100 font-bold text-slate-700" />
+            <button type="submit" disabled={isSubmitting} className="w-full bg-slate-900 text-white font-black py-7 rounded-[2.5rem] shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all uppercase tracking-widest text-xs">
+              {isSubmitting ? "Saqlanmoqda..." : "NATIJANI SAQLASH"}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Manual Add Modal */}
+      {showManualAdd && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md">
+          <div className="bg-white w-full max-w-md rounded-[3rem] p-10 relative shadow-2xl animate-in zoom-in duration-300">
+            <button onClick={() => setShowManualAdd(false)} className="absolute top-8 right-8 text-slate-300 hover:text-slate-900"><X size={32} /></button>
+            <h2 className="text-2xl font-black mb-8 text-slate-800 uppercase tracking-tight flex items-center gap-3">
+              <UserPlus className="text-indigo-600" /> Yangi Mijoz
+            </h2>
+            <form onSubmit={handleManualSubmit} className="space-y-5">
+              <input required value={manualLead.name} onChange={e => setManualLead({...manualLead, name: e.target.value})} type="text" placeholder="Ismi" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-black text-sm uppercase" />
+              <input value={manualLead.surname} onChange={e => setManualLead({...manualLead, surname: e.target.value})} type="text" placeholder="Familiyasi" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-black text-sm uppercase" />
+              <input required value={manualLead.phone} onChange={e => setManualLead({...manualLead, phone: e.target.value})} type="tel" placeholder="Telefon (998...)" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-black text-sm uppercase" />
+              
+              <div className="pt-4 border-t border-slate-100 mt-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Holatni tanlang:</p>
+                <div className="grid grid-cols-2 gap-2 mb-6">
+                  {["will_come", "thinking", "wont_come", "no_answer"].map(s => (
+                    <button key={s} type="button" onClick={() => setVisitStatus(s as VisitStatus)} className={`py-4 rounded-xl border font-black text-[9px] uppercase transition-all ${visitStatus === s ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-400'}`}>
+                      {s === 'will_come' ? 'Keladi' : s === 'thinking' ? 'O\'ylaydi' : s === 'wont_come' ? 'Kelmaydi' : 'Yo\'q'}
+                    </button>
+                  ))}
+                </div>
+                <textarea required value={tasks} onChange={e => setTasks(e.target.value)} placeholder="Natija izohi..." className="w-full h-32 p-6 rounded-2xl bg-slate-50 border-2 border-transparent outline-none focus:border-indigo-100 font-bold text-sm" />
+              </div>
+
+              <button type="submit" className="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] uppercase tracking-widest shadow-xl active:scale-95 transition-all text-xs">
+                Mijozni Saqlash
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default OperatorPanel;

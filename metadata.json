@@ -1,0 +1,8 @@
+{
+  "name": "Copy of NazoratHub - Mobile Operator Management",
+  "description": "A mobile-first platform for managing branch and main office operators without computers. Features AI-powered report analysis, real-time tracking, and simple task submission.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}

@@ -1,53 +1,28 @@
-10:42:44.803
- 
-AQShning Vashington shahrida (Sharq) qurilish ishlari olib borilmoqda – iad1
-10:42:44.803
- 
-Mashina konfiguratsiyasi: 2 yadro, 8 GB
-10:42:44.926
- 
-Klonlash github.com/Nodirbek-S21/aloqanazorati (Branch: main, Commit: 9bf558e)
-10:42:44.927
- 
-Avvalgi tuzilgan keshlar mavjud emas.
-10:42:45.123
- 
-Klonlash tugallandi: 197.000ms
-10:42:45.622
- 
-"vercel build" ishga tushirilmoqda
-10:42:46.783
- 
-Vercel CLI 50.5.2
-10:42:47.516
- 
-Bog'liqliklar o'rnatilmoqda...
-10:43:03.099
- 
-npm ogohlantirish eskirgan node-domexception@1.0.0: Buning o'rniga platformangizning mahalliy DOMException dan foydalaning
-10:43:06.244
- 
-10:43:06.245
- 
-18 soniyada 208 ta paket qo'shildi
-10:43:06.246
- 
-10:43:06.246
- 
-30 ta paket moliyalashtirishni qidirmoqda
-10:43:06.247
- 
-  Tafsilotlar uchun `npm fund` ni ishga tushiring
-10:43:06.309
- 
-"npm run build" ishga tushirilmoqda
-10:43:06.412
- 
-10:43:06.412
- 
-> nazarathub@1.0.0 qurish
-10:43:06.413
- 
-> vite build
-10:43:06.413
- 
+
+{
+  "name": "nazorathub",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "@google/genai": "^1.38.0",
+    "lucide-react": "^0.563.0",
+    "@supabase/supabase-js": "^2.39.7",
+    "recharts": "^3.7.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

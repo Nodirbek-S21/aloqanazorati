@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { User, UserRole, Branch, Report, Lead } from '../types';
+import { User, UserRole, Branch, Report, Lead } from './types';
 import { 
   Trash2, Upload, X, User as UserIcon, Shield, Folder, Calendar, ChevronRight, FolderOpen, Edit3, Eraser, Settings2, UserCheck, Download, UserPlus, Phone, Share2, Info, ExternalLink, Globe
 } from 'lucide-react';
@@ -60,8 +60,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const exportDayToExcel = (date: string) => {
     const dayData = archivedData[date];
+    if (!dayData) return;
     const rows: any[] = [];
-    // Fixed: Explicitly casting group as any to avoid 'unknown' type errors from Object.values
     Object.values(dayData).forEach((group: any) => {
       const branchName = branches.find(b => b.id === group.operator?.branchId)?.name || "Bosh Ofis";
       group.reports.forEach((r: any) => {
@@ -132,7 +132,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Cloud Status Banner */}
       {!isCloud && (
         <div className="bg-red-50 border-2 border-red-100 p-6 rounded-[2rem] flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-center md:text-left">
@@ -171,7 +170,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
       </div>
 
-      {/* Tarqatish (Share) Modal */}
       {showShareModal && (
         <div className="fixed inset-0 z-[350] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md">
           <div className="bg-white w-full max-w-2xl rounded-[3rem] p-12 shadow-2xl relative max-h-[90vh] overflow-y-auto">
@@ -180,49 +178,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               <Globe size={32} />
             </div>
             <h2 className="text-2xl font-black mb-2 text-slate-800 uppercase tracking-tight">Operatorlarga Tarqatish</h2>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10 leading-relaxed">
-              Tizimni filiallar va operatorlarga qanday qilib berish bo'yicha yo'riqnoma:
-            </p>
-            
             <div className="space-y-8">
               <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
                 <h3 className="font-black text-slate-800 uppercase text-xs mb-4 flex items-center gap-2"><ExternalLink size={16} className="text-indigo-600"/> 1-QADAM: Saytni Internetga chiqarish</h3>
                 <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                  Hozirgi sayt faqat sizning telefoningizda (vaqtinchalik). Uni doimiy qilish uchun <b>Vercel</b> yoki <b>Netlify</b> xizmatiga "Deploy" qilishingiz kerak. Shunda sizga <b>nazorat-hub.vercel.app</b> kabi doimiy havola beriladi.
+                  Hozirgi saytni doimiy qilish uchun <b>Vercel</b> yoki <b>Netlify</b> xizmatiga "Deploy" qilishingiz kerak.
                 </p>
-                <div className="flex gap-2">
-                  <span className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase">Vercel.com</span>
-                  <span className="px-4 py-2 bg-slate-200 text-slate-600 rounded-xl text-[9px] font-black uppercase">Netlify.com</span>
-                </div>
               </div>
-
               <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
                 <h3 className="font-black text-slate-800 uppercase text-xs mb-4 flex items-center gap-2"><Share2 size={16} className="text-amber-600"/> 2-QADAM: Linkni ulashish</h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                  Sayt internetga chiqqandan so'ng, o'sha linkni Telegram orqali operatorlarga yuborasiz. Ular saytga kirib:
-                </p>
-                <ul className="text-xs text-slate-500 space-y-2 list-disc ml-4">
-                   <li>Siz yaratgan <b>Ism Familiyani</b> tanlashadi.</li>
-                   <li>Siz bergan <b>Parolni</b> terishadi.</li>
-                   <li>Boshqa hech narsa qilish shart emas!</li>
-                </ul>
-              </div>
-
-              <div className="bg-slate-900 p-8 rounded-[2rem] text-white">
-                <h3 className="font-black uppercase text-xs mb-4">Muhim Eslatma</h3>
-                <p className="text-[10px] opacity-70 leading-relaxed">
-                   Agar siz bazani (Supabase) ulamasangiz, boshqa operatorlar kiritgan ma'lumotlar sizga ko'rinmaydi. Hammasi bitta joyga yig'ilishi uchun albatta tepada turgan <b>"Baza"</b> bo'limidan sozlamalarni yakunlang.
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Vercel bergan linkni Telegram orqali operatorlarga yuborasiz.
                 </p>
               </div>
             </div>
-
             <button onClick={() => setShowShareModal(false)} className="w-full bg-slate-100 text-slate-800 font-black py-7 rounded-[2.5rem] uppercase tracking-widest mt-8 active:scale-95 text-xs">TUSHUNARLI</button>
           </div>
         </div>
       )}
 
       <div className="flex justify-between items-center mt-12 px-4">
-        <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Hodimlar (Admin Nazorati)</h2>
+        <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Hodimlar</h2>
         <button onClick={() => { resetForm(); setShowAddUserModal(true); }} className="bg-slate-900 text-white px-8 py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl active:scale-95 transition-all">+ Yangi Hodim</button>
       </div>
 
@@ -261,35 +237,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         })}
       </div>
 
-      {/* Manual Lead Modal */}
-      {showManualLeadModal && (
-        <div className="fixed inset-0 z-[280] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-          <div className="bg-white w-full max-w-md rounded-[3rem] p-12 shadow-2xl relative">
-            <button onClick={() => setShowManualLeadModal(false)} className="absolute top-10 right-10 text-slate-300 hover:text-slate-900"><X size={32} /></button>
-            <h2 className="text-2xl font-black mb-10 text-slate-800 uppercase tracking-tight flex items-center gap-3">
-              <UserPlus className="text-indigo-600" /> Mijoz Qo'shish
-            </h2>
-            <form onSubmit={handleManualLeadSubmit} className="space-y-6">
-              <input required value={manualLead.name} onChange={e => setManualLead({...manualLead, name: e.target.value})} type="text" placeholder="Mijoz Ismi" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm uppercase" />
-              <input value={manualLead.surname} onChange={e => setManualLead({...manualLead, surname: e.target.value})} type="text" placeholder="Familiyasi" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm uppercase" />
-              <div className="relative">
-                <input required value={manualLead.phone} onChange={e => setManualLead({...manualLead, phone: e.target.value})} type="tel" placeholder="Telefon (Masalan: 998...)" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm" />
-                <Phone className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              </div>
-              <button type="submit" className="w-full bg-slate-900 text-white font-black py-7 rounded-[2.5rem] uppercase tracking-widest shadow-2xl active:scale-95 text-xs mt-4">BAZAGA QO'SHISH</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Archive Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-xl">
           <div className="bg-white w-full max-w-6xl rounded-[3rem] shadow-2xl flex flex-col h-[90vh] overflow-hidden">
             <div className="p-10 border-b flex justify-between items-center bg-slate-50/50">
-               <div>
-                 <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase">24 Soatlik Arxiv</h2>
-               </div>
+               <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase">Arxiv</h2>
                <button onClick={() => setShowArchiveModal(false)} className="p-5 bg-white shadow-sm text-slate-400 rounded-2xl"><X size={24} /></button>
             </div>
             <div className="flex-1 flex overflow-hidden">
@@ -305,30 +257,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeDate ? (
                     <div className="space-y-10">
                        <div className="flex justify-between items-center bg-indigo-50 p-8 rounded-[2rem] border border-indigo-100 shadow-sm">
-                          <div>
-                            <h3 className="text-xl font-black text-indigo-900 uppercase">{activeDate}</h3>
-                            {/* Fixed: Casting curr as any to access reports property */}
-                            <p className="text-[10px] font-black text-indigo-600 uppercase mt-1">Jami: {Object.values(archivedData[activeDate]).reduce((acc, curr: any) => acc + curr.reports.length, 0)} ta natija</p>
-                          </div>
+                          <div><h3 className="text-xl font-black text-indigo-900 uppercase">{activeDate}</h3></div>
                           <button onClick={() => exportDayToExcel(activeDate)} className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg"><Download size={18}/> Excel Yuklash</button>
                        </div>
-                       {/* Fixed: Casting group as any to access operator and reports properties */}
-                       {Object.entries(archivedData[activeDate]).map(([opId, group]: [string, any]) => (
-                         <div key={opId} className="border-l-4 border-indigo-600 pl-8 space-y-6">
-                            <div className="flex items-center gap-4">
-                               <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 font-black">{group.operator?.name.charAt(0)}</div>
-                               <div>
-                                  <h4 className="font-black text-slate-900 uppercase">{group.operator?.name || "O'chirilgan hodim"}</h4>
-                                  <p className="text-[9px] font-black text-indigo-600 uppercase">
-                                    {branches.find(b => b.id === group.operator?.branchId)?.name || "Filial aniqlanmadi"} • {group.reports.length} ta natija
-                                  </p>
-                               </div>
-                            </div>
+                       {Object.entries(archivedData[activeDate] || {}).map(([opId, group]: [string, any]) => (
+                         <div key={opId} className="border-l-4 border-indigo-600 pl-8 space-y-6 mb-8">
+                            <h4 className="font-black text-slate-900 uppercase">{group.operator?.name || "Noma'lum"}</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                {group.reports.map((r: any) => (
                                  <div key={r.id} className="bg-slate-50 p-5 rounded-2xl border text-sm">
-                                    <div className="flex justify-between mb-3 font-black text-slate-800 uppercase text-[10px]"><span>{r.clientName}</span><span className="text-slate-400">{r.timestamp.split('T')[1].substr(0, 5)}</span></div>
-                                    <p className="italic text-slate-600 border-l-2 border-indigo-200 pl-3 leading-relaxed">"{r.tasksCompleted}"</p>
+                                    <div className="flex justify-between mb-3 font-black text-slate-800 uppercase text-[10px]"><span>{r.clientName}</span><span>{r.timestamp.split('T')[1].substr(0, 5)}</span></div>
+                                    <p className="italic text-slate-600 border-l-2 border-indigo-200 pl-3">"{r.tasksCompleted}"</p>
                                  </div>
                                ))}
                             </div>
@@ -347,7 +286,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
       )}
 
-      {/* User Management Modals */}
       {(showAddUserModal || showEditUserModal) && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
            <div className="bg-white w-full max-w-md rounded-[3rem] p-12 relative shadow-2xl">
@@ -357,7 +295,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               </h2>
               <form onSubmit={(e) => {
                 e.preventDefault();
-                if (!newName || !newPassword) return;
                 if (showEditUserModal) {
                   onUpdateUser({ ...showEditUserModal, name: newName, role: newRole, password: newPassword, branchId: newBranchId });
                   setShowEditUserModal(null);
@@ -367,16 +304,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 }
                 resetForm();
               }} className="space-y-6">
-                <div className="flex bg-slate-100 p-1.5 rounded-2xl">
-                  <button type="button" onClick={() => setNewRole(UserRole.OPERATOR)} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest ${newRole === UserRole.OPERATOR ? 'bg-white shadow-md text-indigo-600' : 'text-slate-400'}`}>Operator</button>
-                  <button type="button" onClick={() => setNewRole(UserRole.MANAGER)} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest ${newRole === UserRole.MANAGER ? 'bg-white shadow-md text-amber-600' : 'text-slate-400'}`}>Menejer</button>
-                </div>
-                <input required value={newName} onChange={e => setNewName(e.target.value)} type="text" placeholder="Ism Familiya" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm uppercase transition-all" />
-                <input required value={newPassword} onChange={e => setNewPassword(e.target.value)} type="text" placeholder="Parol" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm transition-all" />
-                <select value={newBranchId} onChange={e => setNewBranchId(e.target.value)} className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm uppercase appearance-none transition-all">
+                <input required value={newName} onChange={e => setNewName(e.target.value)} type="text" placeholder="Ism Familiya" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm uppercase" />
+                <input required value={newPassword} onChange={e => setNewPassword(e.target.value)} type="text" placeholder="Parol" className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm" />
+                <select value={newBranchId} onChange={e => setNewBranchId(e.target.value)} className="w-full px-8 py-5 rounded-3xl bg-slate-50 border-2 border-transparent focus:border-indigo-600 outline-none font-black text-sm uppercase">
                   {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
-                <button type="submit" className="w-full bg-slate-900 text-white font-black py-7 rounded-[2.5rem] uppercase tracking-widest shadow-2xl active:scale-95 text-xs mt-4">SAQLASH</button>
+                <button type="submit" className="w-full bg-slate-900 text-white font-black py-7 rounded-[2.5rem] uppercase tracking-widest shadow-2xl active:scale-95 text-xs">SAQLASH</button>
               </form>
            </div>
         </div>
@@ -386,10 +319,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         <div className="fixed inset-0 z-[310] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
           <div className="bg-white w-full max-w-sm rounded-[3rem] p-12 shadow-2xl text-center">
             <h2 className="text-xl font-black mb-2 text-slate-800 uppercase tracking-tight">Biriktirish</h2>
-            <p className="text-[10px] font-black text-indigo-600 mb-10 uppercase tracking-widest">{distributeModal.operatorName}</p>
-            <input type="number" value={distributeCount} onChange={e => setDistributeCount(parseInt(e.target.value) || 0)} className="w-full px-8 py-8 rounded-[2rem] bg-slate-50 text-center font-black text-5xl border-none outline-none shadow-inner" />
-            <button onClick={() => { onDistributeLeads(distributeModal.operatorId, distributeCount); setDistributeModal({show: false, operatorId: '', operatorName: ''}); }} className="w-full bg-slate-900 text-white font-black py-7 rounded-[2.5rem] uppercase tracking-widest shadow-xl mt-8 active:scale-95 transition-all">TASDIQLASH</button>
-            <button onClick={() => setDistributeModal({show: false, operatorId: '', operatorName: ''})} className="mt-6 text-slate-400 font-black text-[10px] uppercase tracking-widest">BEKOR QILISH</button>
+            <input type="number" value={distributeCount} onChange={e => setDistributeCount(parseInt(e.target.value) || 0)} className="w-full px-8 py-8 rounded-[2rem] bg-slate-50 text-center font-black text-5xl" />
+            <button onClick={() => { onDistributeLeads(distributeModal.operatorId, distributeCount); setDistributeModal({show: false, operatorId: '', operatorName: ''}); }} className="w-full bg-slate-900 text-white font-black py-7 rounded-[2.5rem] uppercase tracking-widest mt-8">TASDIQLASH</button>
+            <button onClick={() => setDistributeModal({show: false, operatorId: '', operatorName: ''})} className="mt-6 text-slate-400 font-black text-[10px] uppercase">BEKOR QILISH</button>
           </div>
         </div>
       )}

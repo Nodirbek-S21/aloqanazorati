@@ -63,7 +63,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!dayData) return;
     const rows: any[] = [];
     Object.values(dayData).forEach((group: any) => {
-      const branchName = branches.find(b => b.id === group.operator?.branchId)?.name || "Bosh Ofis";
+      const branchName = branches.find(b => (b as any).id === group.operator?.branchId)?.name || "Bosh Ofis";
       group.reports.forEach((r: any) => {
         rows.push({
           "Sana": date,
